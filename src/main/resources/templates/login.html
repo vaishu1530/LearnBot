@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #020b16;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            width: 420px;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 35px;
+            border-radius: 18px;
+            border: 1px solid #0ef;
+            box-shadow: 0 0 25px #0ef;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 28px;
+            letter-spacing: 1px;
+            color: #0ef;
+        }
+
+        .inputBox {
+            margin-bottom: 18px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            font-size: 16px;
+            background: #021526;
+            color: #fff;
+            border: 1px solid #0ef;
+            box-shadow: 0 0 10px #0ef inset;
+        }
+
+        input::placeholder {
+            color: #64ffff;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            color: #000;
+            background: #0ef;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #06c6c6;
+            box-shadow: 0 0 15px #0ef;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            padding: 10px;
+            border-left: 3px solid red;
+            margin-bottom: 15px;
+            border-radius: 6px;
+        }
+
+        .registerLink {
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        .registerLink a {
+            color: #0ef;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Welcome Back</h2>
+
+    <!-- Spring Security login error -->
+    <div th:if="${param.error}" class="error">
+        Invalid email or password
+    </div>
+
+    <form action="/login" method="post">
+        <input type="text" name="username" placeholder="Email" />
+        <input type="password" name="password" placeholder="Password" />
+        <button type="submit">Login</button>
+    </form>
+
+    <div class="registerLink">
+        Don't have an account? <a href="/register">Register</a>
+    </div>
+
+</div>
+
+</body>
+</html>

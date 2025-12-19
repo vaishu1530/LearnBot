@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>LearnBot | Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); --accent: #4ade80; }
+        body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; display: flex; height: 100vh; }
+
+        /* Sidebar Feature */
+        .sidebar { width: 260px; background: #090b0f; border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+        .history-item { padding: 10px; font-size: 0.85rem; color: #94a3b8; border-radius: 8px; cursor: pointer; margin-bottom: 5px; transition: 0.3s; }
+        .history-item:hover { background: var(--glass); color: var(--accent); }
+
+        /* Main Chat Area */
+        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
+        #chatbox { flex: 1; overflow-y: auto; padding: 40px 10%; scrollbar-width: none; }
+        
+        /* Systematic Message Styling */
+        .msg-container { margin-bottom: 50px; }
+        .label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; display: block; }
+        .bot-label { color: var(--accent); }
+        
+        .title { font-size: 1.4rem; font-weight: 600; color: #fff; display: block; margin: 20px 0; }
+        .faint { color: #64748b; font-size: 0.9rem; font-style: italic; }
+        .bullet { display: block; margin: 15px 0 15px 25px; line-height: 1.7; color: #cbd5e1; }
+
+        /* Bottom Input Bar */
+        .input-container { padding: 30px 10%; background: linear-gradient(transparent, #05070a); }
+        .input-glass { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 15px 25px; display: flex; align-items: center; backdrop-filter: blur(10px); }
+        input { background: transparent; border: none; color: white; flex: 1; outline: none; font-size: 1rem; }
+        button { background: var(--accent); color: #05070a; border: none; padding: 10px 25px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h3 style="color: var(--accent); font-size: 1rem;">RECENT TOPICS</h3>
+        <div id="history"></div>
+    </div>
+
+    <div class="main-chat">
+        <div id="chatbox">
+            <div class="msg-container">
+                <span class="label bot-label">System Initialized</span>
+                <div class="title">How can I assist your studies today?</div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-glass">
+                <input type="text" id="userIn" placeholder="Enter topic (e.g. Cloud Computing or IoT)..." onkeypress="if(event.key==='Enter') send()">
+                <button onclick="send()">RUN AI</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateHistory(q) {
+            const h = document.getElementById('history');
+            h.innerHTML = `<div class="history-item">◓ ${q}</div>` + h.innerHTML;
+        }
+
+        async function send() {
+            const input = document.getElementById('userIn');
+            const chat = document.getElementById('chatbox');
+            if(!input.value.trim()) return;
+
+            const q = input.value;
+            updateHistory(q);
+            chat.innerHTML += `<div class="msg-container"><span class="label" style="color:#64748b">Query</span><div style="font-size:1.1rem">${q}</div></div>`;
+            input.value = '';
+
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'question': q })
+            });
+
+            const text = await response.text();
+            
+            // Systematic Formatting Logic
+            const formatted = text
+                .replace(/\*/g, '') 
+                .replace(/^(\d+\.)/gm, '<span class="title">$1</span>') 
+                .replace(/\((.*?)\)/g, '<span class="faint">($1)</span>') 
+                .replace(/•/g, '<span class="bullet">•</span>') 
+                .replace(/\n/g, '<br>');
+
+            chat.innerHTML += `<div class="msg-container"><span class="label bot-label">Intelligence Report</span><div>${formatted}</div></div>`;
+            chat.scrollTop = chat.scrollHeight;
+        }
+    </script>
+</body>
+</html>

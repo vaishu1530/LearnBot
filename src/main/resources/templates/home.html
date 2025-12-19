@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #020b16;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 42px;
+            color: #0ef;
+            text-shadow: 0 0 12px #0ef;
+            margin-bottom: 25px;
+        }
+
+        .start-btn {
+            padding: 15px 35px;
+            font-size: 22px;
+            background: #0ef;
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 20px #0ef;
+        }
+
+        .start-btn:hover {
+            background: #06c6c6;
+            box-shadow: 0 0 30px #0ef;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Welcome to LearnBot 🚀</h1>
+
+    <a href="/ask">
+        <button class="start-btn">Start Learning</button>
+    </a>
+
+</div>
+
+</body>
+</html>
