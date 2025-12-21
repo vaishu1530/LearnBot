@@ -1,134 +1,138 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>LearnBot | Intelligence</title>
+    <title>LearnBot | Intelligence Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); --accent: #4ade80; }
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar Feature - Updated for Mobile */
+        /* --- SLIM SIDEBAR --- */
         .sidebar { 
-            width: 260px; 
+            width: 250px; 
             background: #090b0f; 
             border-right: 1px solid var(--border); 
-            padding: 20px; 
             display: flex; 
             flex-direction: column; 
-            transition: 0.3s ease;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
+            flex-shrink: 0;
         }
         
-        .history-item { padding: 10px; font-size: 0.85rem; color: #94a3b8; border-radius: 8px; cursor: pointer; margin-bottom: 5px; transition: 0.3s; }
+        .sidebar-top { padding: 20px; }
+        .new-chat-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--glass);
+            border: 1px dashed var(--accent);
+            color: var(--accent);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        .sidebar-middle { flex: 1; overflow-y: auto; padding: 0 15px; scrollbar-width: none; }
+        .history-label { font-size: 0.65rem; color: #64748b; font-weight: 700; letter-spacing: 1px; margin: 20px 5px 10px; text-transform: uppercase; }
+        .history-item { padding: 10px; font-size: 0.85rem; color: #94a3b8; border-radius: 8px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .history-item:hover { background: var(--glass); color: var(--accent); }
 
-        /* --- NEW: Mobile Menu Button (3 Lines) --- */
-        .hamburger {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1100;
-            background: var(--glass);
-            border: 1px solid var(--border);
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-        }
-        .hamburger div {
-            width: 20px;
-            height: 2px;
-            background: var(--accent);
-            margin: 4px 0;
-            transition: 0.3s;
-        }
+        .sidebar-bottom { padding: 15px; border-top: 1px solid var(--border); }
+        .nav-item { padding: 10px; font-size: 0.8rem; color: #64748b; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .nav-item:hover { background: var(--glass); color: white; }
 
-        /* Main Chat Area */
-        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
-        #chatbox { flex: 1; overflow-y: auto; padding: 40px 10%; scrollbar-width: none; }
+        /* --- HAMBURGER BUTTON --- */
+        .hamburger { display: none; position: fixed; top: 15px; left: 15px; z-index: 1100; background: #090b0f; border: 1px solid var(--border); padding: 10px; border-radius: 8px; cursor: pointer; }
+        .hamburger div { width: 20px; height: 2px; background: var(--accent); margin: 4px 0; }
+
+        /* --- FLEXIBLE MAIN AREA --- */
+        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; }
+        #chatbox { flex: 1; overflow-y: auto; padding: 40px 10%; scrollbar-width: none; scroll-behavior: smooth; }
         
-        /* Systematic Message Styling */
-        .msg-container { margin-bottom: 50px; }
-        .label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; display: block; }
+        .msg-container { margin-bottom: 40px; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; display: block; }
         .bot-label { color: var(--accent); }
-        
-        .title { font-size: 1.4rem; font-weight: 600; color: #fff; display: block; margin: 20px 0; }
-        .faint { color: #64748b; font-size: 0.9rem; font-style: italic; }
-        .bullet { display: block; margin: 15px 0 15px 25px; line-height: 1.7; color: #cbd5e1; }
+        .title { font-size: 1.4rem; font-weight: 600; color: #fff; display: block; margin: 18px 0; }
+        .bullet { display: block; margin: 12px 0 12px 20px; line-height: 1.7; color: #cbd5e1; }
 
-        /* Bottom Input Bar */
-        .input-container { padding: 30px 10%; background: linear-gradient(transparent, #05070a); }
-        .input-glass { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 10px 20px; display: flex; align-items: center; backdrop-filter: blur(10px); }
-        input { background: transparent; border: none; color: white; flex: 1; outline: none; font-size: 1rem; min-width: 50px; }
-        button { background: var(--accent); color: #05070a; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; margin-left: 10px; }
+        /* --- INPUT --- */
+        .input-container { padding: 25px 10%; background: linear-gradient(transparent, #05070a 50%); }
+        .input-glass { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 10px 20px; display: flex; align-items: center; backdrop-filter: blur(15px); }
+        input { background: transparent; border: none; color: white; flex: 1; outline: none; font-size: 1rem; }
+        button#sendBtn { background: var(--accent); color: #05070a; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; margin-left: 10px; }
 
-        /* --- NEW: Responsive Media Query --- */
+        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
-            .hamburger { display: block; } /* Show hamburger on mobile */
-            
-            .sidebar {
-                position: fixed;
-                left: -260px; /* Hide off-screen */
-                height: 100%;
-                box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-            }
-            
-            .sidebar.active { left: 0; } /* Slide in when active */
-            
-            #chatbox { padding: 60px 5% 20px 5%; }
+            .hamburger { display: block; }
+            .sidebar { position: fixed; left: -250px; height: 100%; box-shadow: 10px 0 30px rgba(0,0,0,0.8); }
+            .sidebar.active { left: 0; }
+            #chatbox { padding: 75px 6% 20px; }
             .input-container { padding: 20px 5%; }
-            .title { font-size: 1.1rem; }
+            .new-chat-btn { margin-top: 45px; }
         }
     </style>
 </head>
 <body>
 
     <div class="hamburger" onclick="toggleMenu()">
-        <div></div>
-        <div></div>
-        <div></div>
+        <div></div><div></div><div></div>
     </div>
 
     <div class="sidebar" id="sidebar">
-        <h3 style="color: var(--accent); font-size: 1rem; margin-top: 40px;">RECENT TOPICS</h3>
-        <div id="history"></div>
+        <div class="sidebar-top">
+            <button class="new-chat-btn" onclick="location.reload()">
+                <span>+</span> New Chat
+            </button>
+        </div>
+        
+        <div class="sidebar-middle">
+            <div class="history-label">Recent History</div>
+            <div id="history"></div>
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="nav-item" onclick="alert('Settings menu opening...')">⚙️ Settings</div>
+            <div class="nav-item" onclick="alert('Help center loading...')">❓ Help & FAQ</div>
+        </div>
     </div>
 
     <div class="main-chat">
         <div id="chatbox">
             <div class="msg-container">
-                <span class="label bot-label">System Initialized</span>
-                <div class="title">How can I assist your studies today?</div>
+                <span class="label bot-label">System Online</span>
+                <div class="title">How can I assist your learning today?</div>
             </div>
         </div>
 
         <div class="input-container">
             <div class="input-glass">
                 <input type="text" id="userIn" placeholder="Enter topic..." onkeypress="if(event.key==='Enter') send()">
-                <button onclick="send()">RUN AI</button>
+                <button id="sendBtn" onclick="send()">RUN AI</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- NEW: Toggle Sidebar Logic ---
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('active');
         }
 
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            const sidebar = document.getElementById('sidebar');
-            const hamburger = document.querySelector('.hamburger');
-            if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !hamburger.contains(e.target)) {
-                sidebar.classList.remove('active');
+        document.querySelector('.main-chat').addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
             }
         });
 
         function updateHistory(q) {
             const h = document.getElementById('history');
-            h.innerHTML = `<div class="history-item">◓ ${q}</div>` + h.innerHTML;
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerText = `◓ ${q}`;
+            h.insertBefore(item, h.firstChild);
         }
 
         async function send() {
@@ -138,30 +142,32 @@
 
             const q = input.value;
             updateHistory(q);
-            
-            // Close sidebar on mobile after sending a query
-            document.getElementById('sidebar').classList.remove('active');
+            if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('active');
 
-            chat.innerHTML += `<div class="msg-container"><span class="label" style="color:#64748b">Query</span><div style="font-size:1.1rem">${q}</div></div>`;
+            chat.innerHTML += `<div class="msg-container"><span class="label" style="color:#64748b">Topic</span><div style="font-size:1.1rem; color: #fff;">${q}</div></div>`;
             input.value = '';
-
-            const response = await fetch('/ask', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ 'question': q })
-            });
-
-            const text = await response.text();
-            
-            const formatted = text
-                .replace(/\*/g, '') 
-                .replace(/^(\d+\.)/gm, '<span class="title">$1</span>') 
-                .replace(/\((.*?)\)/g, '<span class="faint">($1)</span>') 
-                .replace(/•/g, '<span class="bullet">•</span>') 
-                .replace(/\n/g, '<br>');
-
-            chat.innerHTML += `<div class="msg-container"><span class="label bot-label">Intelligence Report</span><div>${formatted}</div></div>`;
             chat.scrollTop = chat.scrollHeight;
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ 'question': q })
+                });
+
+                const text = await response.text();
+                const formatted = text
+                    .replace(/\*/g, '') 
+                    .replace(/^(\d+\.)/gm, '<span class="title">$1</span>') 
+                    .replace(/\((.*?)\)/g, '<span class="faint">($1)</span>') 
+                    .replace(/•/g, '<span class="bullet">•</span>') 
+                    .replace(/\n/g, '<br>');
+
+                chat.innerHTML += `<div class="msg-container"><span class="label bot-label">Analysis</span><div>${formatted}</div></div>`;
+                chat.scrollTop = chat.scrollHeight;
+            } catch (err) {
+                chat.innerHTML += `<div class="msg-container"><span class="label" style="color:#ff4a4a">Error</span><div>Failed to connect to AI.</div></div>`;
+            }
         }
     </script>
 </body>
