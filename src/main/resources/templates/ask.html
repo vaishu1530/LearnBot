@@ -8,124 +8,93 @@
         :root { --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); --accent: #4ade80; }
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- SLIM SIDEBAR --- */
+        /* --- FLEXIBLE SIDEBAR --- */
         .sidebar { 
-            width: 250px; 
-            background: #090b0f; 
-            border-right: 1px solid var(--border); 
-            display: flex; 
-            flex-direction: column; 
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
-            flex-shrink: 0;
+            width: 250px; background: #090b0f; border-right: 1px solid var(--border); 
+            display: flex; flex-direction: column; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000; flex-shrink: 0;
         }
-        
         .sidebar-top { padding: 20px; }
         .new-chat-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--glass);
-            border: 1px dashed var(--accent);
-            color: var(--accent);
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
+            width: 100%; padding: 12px; background: var(--glass); border: 1px dashed var(--accent);
+            color: var(--accent); border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem;
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-
         .sidebar-middle { flex: 1; overflow-y: auto; padding: 0 15px; scrollbar-width: none; }
         .history-label { font-size: 0.65rem; color: #64748b; font-weight: 700; letter-spacing: 1px; margin: 20px 5px 10px; text-transform: uppercase; }
         .history-item { padding: 10px; font-size: 0.85rem; color: #94a3b8; border-radius: 8px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .history-item:hover { background: var(--glass); color: var(--accent); }
-
         .sidebar-bottom { padding: 15px; border-top: 1px solid var(--border); }
-        .nav-item { padding: 10px; font-size: 0.8rem; color: #64748b; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
-        .nav-item:hover { background: var(--glass); color: white; }
+        .nav-item { padding: 10px; font-size: 0.8rem; color: #64748b; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
 
         /* --- HAMBURGER BUTTON --- */
         .hamburger { display: none; position: fixed; top: 15px; left: 15px; z-index: 1100; background: #090b0f; border: 1px solid var(--border); padding: 10px; border-radius: 8px; cursor: pointer; }
         .hamburger div { width: 20px; height: 2px; background: var(--accent); margin: 4px 0; }
 
-        /* --- FLEXIBLE MAIN AREA --- */
+        /* --- CHAT ALIGNMENT LOGIC --- */
         .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; }
-        #chatbox { flex: 1; overflow-y: auto; padding: 40px 10%; scrollbar-width: none; scroll-behavior: smooth; }
+        #chatbox { flex: 1; overflow-y: auto; padding: 40px 5%; scrollbar-width: none; scroll-behavior: smooth; display: flex; flex-direction: column; }
         
-        .msg-container { margin-bottom: 40px; animation: fadeIn 0.4s ease; }
+        .msg-container { max-width: 80%; margin-bottom: 25px; padding: 15px 20px; border-radius: 15px; animation: fadeIn 0.4s ease; line-height: 1.6; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* LEFT SIDE: User Question */
+        .user-msg { align-self: flex-start; background: var(--glass); border: 1px solid var(--border); color: #fff; border-bottom-left-radius: 2px; }
         
-        .label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; display: block; }
+        /* RIGHT SIDE: AI Answer */
+        .bot-msg { align-self: flex-end; background: rgba(74, 222, 128, 0.05); border: 1px solid rgba(74, 222, 128, 0.2); border-bottom-right-radius: 2px; text-align: left; }
+
+        .label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+        .user-label { color: #64748b; }
         .bot-label { color: var(--accent); }
-        .title { font-size: 1.4rem; font-weight: 600; color: #fff; display: block; margin: 18px 0; }
-        .bullet { display: block; margin: 12px 0 12px 20px; line-height: 1.7; color: #cbd5e1; }
+        
+        .title { font-size: 1.2rem; font-weight: 600; color: #fff; display: block; margin: 10px 0; }
+        .bullet { color: var(--accent); font-weight: bold; margin-right: 8px; display: inline; }
+        .answer-text { display: inline; color: #cbd5e1; }
 
         /* --- INPUT --- */
-        .input-container { padding: 25px 10%; background: linear-gradient(transparent, #05070a 50%); }
+        .input-container { padding: 25px 5%; background: linear-gradient(transparent, #05070a 50%); }
         .input-glass { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 10px 20px; display: flex; align-items: center; backdrop-filter: blur(15px); }
         input { background: transparent; border: none; color: white; flex: 1; outline: none; font-size: 1rem; }
         button#sendBtn { background: var(--accent); color: #05070a; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; margin-left: 10px; }
 
-        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
             .hamburger { display: block; }
             .sidebar { position: fixed; left: -250px; height: 100%; box-shadow: 10px 0 30px rgba(0,0,0,0.8); }
             .sidebar.active { left: 0; }
-            #chatbox { padding: 75px 6% 20px; }
-            .input-container { padding: 20px 5%; }
-            .new-chat-btn { margin-top: 45px; }
+            #chatbox { padding: 75px 4% 20px; }
+            .msg-container { max-width: 90%; }
         }
     </style>
 </head>
 <body>
-
     <div class="hamburger" onclick="toggleMenu()">
         <div></div><div></div><div></div>
     </div>
-
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-top">
-            <button class="new-chat-btn" onclick="location.reload()">
-                <span>+</span> New Chat
-            </button>
-        </div>
-        
-        <div class="sidebar-middle">
-            <div class="history-label">Recent History</div>
-            <div id="history"></div>
-        </div>
-
+        <div class="sidebar-top"><button class="new-chat-btn" onclick="location.reload()"><span>+</span> New Chat</button></div>
+        <div class="sidebar-middle"><div class="history-label">Recent History</div><div id="history"></div></div>
         <div class="sidebar-bottom">
-            <div class="nav-item" onclick="alert('Settings menu opening...')">⚙️ Settings</div>
-            <div class="nav-item" onclick="alert('Help center loading...')">❓ Help & FAQ</div>
+            <div class="nav-item">⚙️ Settings</div>
+            <div class="nav-item">❓ Help & FAQ</div>
         </div>
     </div>
-
     <div class="main-chat">
         <div id="chatbox">
-            <div class="msg-container">
+            <div class="msg-container bot-msg">
                 <span class="label bot-label">System Online</span>
-                <div class="title">How can I assist your learning today?</div>
+                <div style="color:#cbd5e1;">How can I assist your learning today?</div>
             </div>
         </div>
-
-        <div class="input-container">
-            <div class="input-glass">
-                <input type="text" id="userIn" placeholder="Enter topic..." onkeypress="if(event.key==='Enter') send()">
-                <button id="sendBtn" onclick="send()">RUN AI</button>
-            </div>
-        </div>
+        <div class="input-container"><div class="input-glass">
+            <input type="text" id="userIn" placeholder="Ask your question..." onkeypress="if(event.key==='Enter') send()">
+            <button id="sendBtn" onclick="send()">RUN AI</button>
+        </div></div>
     </div>
 
     <script>
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-        }
-
-        document.querySelector('.main-chat').addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('active');
-            }
-        });
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); }
+        document.querySelector('.main-chat').addEventListener('click', () => { if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('active'); });
 
         function updateHistory(q) {
             const h = document.getElementById('history');
@@ -139,12 +108,12 @@
             const input = document.getElementById('userIn');
             const chat = document.getElementById('chatbox');
             if(!input.value.trim()) return;
-
             const q = input.value;
             updateHistory(q);
             if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('active');
 
-            chat.innerHTML += `<div class="msg-container"><span class="label" style="color:#64748b">Topic</span><div style="font-size:1.1rem; color: #fff;">${q}</div></div>`;
+            // USER MESSAGE ON LEFT
+            chat.innerHTML += `<div class="msg-container user-msg"><span class="label user-label">You</span><div>${q}</div></div>`;
             input.value = '';
             chat.scrollTop = chat.scrollHeight;
 
@@ -154,19 +123,20 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({ 'question': q })
                 });
-
                 const text = await response.text();
+                
+                // FORMATTING: Bullets on same line
                 const formatted = text
                     .replace(/\*/g, '') 
                     .replace(/^(\d+\.)/gm, '<span class="title">$1</span>') 
-                    .replace(/\((.*?)\)/g, '<span class="faint">($1)</span>') 
-                    .replace(/•/g, '<span class="bullet">•</span>') 
+                    .replace(/•\s*(.*)/g, '<div style="margin-bottom:8px"><span class="bullet">•</span><span class="answer-text">$1</span></div>')
                     .replace(/\n/g, '<br>');
 
-                chat.innerHTML += `<div class="msg-container"><span class="label bot-label">Analysis</span><div>${formatted}</div></div>`;
+                // BOT MESSAGE ON RIGHT
+                chat.innerHTML += `<div class="msg-container bot-msg"><span class="label bot-label">LearnBot AI</span><div>${formatted}</div></div>`;
                 chat.scrollTop = chat.scrollHeight;
             } catch (err) {
-                chat.innerHTML += `<div class="msg-container"><span class="label" style="color:#ff4a4a">Error</span><div>Failed to connect to AI.</div></div>`;
+                chat.innerHTML += `<div class="msg-container bot-msg" style="border-color:red"><span class="label" style="color:red">Error</span><div>Failed to connect.</div></div>`;
             }
         }
     </script>
