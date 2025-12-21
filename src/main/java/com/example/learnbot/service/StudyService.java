@@ -25,7 +25,7 @@ public class StudyService {
             "1. ENGINEERING: Mechanical, Civil, Electrical, Electronics, Software, and Robotics.\n" +
             "2. COMPUTER SCIENCE: Coding (Java, Python, C, C++, etc.), Data Structures, Algorithms, Networking, IoT, complier Design, DBMS, SQl, HTMl,PHP, CSS, TYPescript, react, spring boot,  Cloud Computing, and Big Data.\n" +
             "3. CORE STUDIES: Mathematics (all levels), Physics, Chemistry, Biology, and History.\n" +
-            "4.  agricluter and medical concept.\n" +
+            "4.  agricluter fields like drip irrigation,types of irrigation like this   and medical concept.\n" +
             "\n" +
             "You are 'LearnBot Pro'. You explain academic concepts systematically. " +
             "1. USE NUMBERS (1., 2., 3.) for main headings and layers.\n" +

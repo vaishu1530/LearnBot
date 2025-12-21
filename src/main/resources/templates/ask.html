@@ -5,15 +5,47 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); --accent: #4ade80; }
-        body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; display: flex; height: 100vh; }
+        body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar Feature */
-        .sidebar { width: 260px; background: #090b0f; border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+        /* Sidebar Feature - Updated for Mobile */
+        .sidebar { 
+            width: 260px; 
+            background: #090b0f; 
+            border-right: 1px solid var(--border); 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            transition: 0.3s ease;
+            z-index: 1000;
+        }
+        
         .history-item { padding: 10px; font-size: 0.85rem; color: #94a3b8; border-radius: 8px; cursor: pointer; margin-bottom: 5px; transition: 0.3s; }
         .history-item:hover { background: var(--glass); color: var(--accent); }
 
+        /* --- NEW: Mobile Menu Button (3 Lines) --- */
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        .hamburger div {
+            width: 20px;
+            height: 2px;
+            background: var(--accent);
+            margin: 4px 0;
+            transition: 0.3s;
+        }
+
         /* Main Chat Area */
-        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
+        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
         #chatbox { flex: 1; overflow-y: auto; padding: 40px 10%; scrollbar-width: none; }
         
         /* Systematic Message Styling */
@@ -27,15 +59,39 @@
 
         /* Bottom Input Bar */
         .input-container { padding: 30px 10%; background: linear-gradient(transparent, #05070a); }
-        .input-glass { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 15px 25px; display: flex; align-items: center; backdrop-filter: blur(10px); }
-        input { background: transparent; border: none; color: white; flex: 1; outline: none; font-size: 1rem; }
-        button { background: var(--accent); color: #05070a; border: none; padding: 10px 25px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+        .input-glass { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 10px 20px; display: flex; align-items: center; backdrop-filter: blur(10px); }
+        input { background: transparent; border: none; color: white; flex: 1; outline: none; font-size: 1rem; min-width: 50px; }
+        button { background: var(--accent); color: #05070a; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; margin-left: 10px; }
+
+        /* --- NEW: Responsive Media Query --- */
+        @media (max-width: 768px) {
+            .hamburger { display: block; } /* Show hamburger on mobile */
+            
+            .sidebar {
+                position: fixed;
+                left: -260px; /* Hide off-screen */
+                height: 100%;
+                box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            }
+            
+            .sidebar.active { left: 0; } /* Slide in when active */
+            
+            #chatbox { padding: 60px 5% 20px 5%; }
+            .input-container { padding: 20px 5%; }
+            .title { font-size: 1.1rem; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h3 style="color: var(--accent); font-size: 1rem;">RECENT TOPICS</h3>
+    <div class="hamburger" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <h3 style="color: var(--accent); font-size: 1rem; margin-top: 40px;">RECENT TOPICS</h3>
         <div id="history"></div>
     </div>
 
@@ -49,13 +105,27 @@
 
         <div class="input-container">
             <div class="input-glass">
-                <input type="text" id="userIn" placeholder="Enter topic (e.g. Cloud Computing or IoT)..." onkeypress="if(event.key==='Enter') send()">
+                <input type="text" id="userIn" placeholder="Enter topic..." onkeypress="if(event.key==='Enter') send()">
                 <button onclick="send()">RUN AI</button>
             </div>
         </div>
     </div>
 
     <script>
+        // --- NEW: Toggle Sidebar Logic ---
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const hamburger = document.querySelector('.hamburger');
+            if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
         function updateHistory(q) {
             const h = document.getElementById('history');
             h.innerHTML = `<div class="history-item">◓ ${q}</div>` + h.innerHTML;
@@ -68,6 +138,10 @@
 
             const q = input.value;
             updateHistory(q);
+            
+            // Close sidebar on mobile after sending a query
+            document.getElementById('sidebar').classList.remove('active');
+
             chat.innerHTML += `<div class="msg-container"><span class="label" style="color:#64748b">Query</span><div style="font-size:1.1rem">${q}</div></div>`;
             input.value = '';
 
@@ -79,7 +153,6 @@
 
             const text = await response.text();
             
-            // Systematic Formatting Logic
             const formatted = text
                 .replace(/\*/g, '') 
                 .replace(/^(\d+\.)/gm, '<span class="title">$1</span>') 
