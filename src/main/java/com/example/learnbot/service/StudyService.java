@@ -17,19 +17,17 @@ public class StudyService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public String getStudyLogic(String userQuestion) {
-        // 1. Safety Check: If key is missing, don't crash, just tell the user.
         if (apiKey == null || apiKey.isEmpty()) {
-            return "LearnBot is offline: Please add your GEMINI_API_KEY to Zeabur Variables.";
+            return "LearnBot is offline: Missing API Key.";
         }
 
-        // 2. Build the URL correctly
+        // Join URL and Key
         String url = apiUrl + "?key=" + apiKey;
 
-        // 3. System Prompt for Diagrams
-        String systemPrompt = "You are 'LearnBot Pro'. Answer only academic questions.\n" +
-            "1. Use (1., 2.) for headings and (•) for bullets.\n" +
-            "2. If a topic is visual, you MUST provide a Mermaid diagram starting with 'graph TD'.\n" +
-            "3. Put technical terms in parentheses ().";
+        String systemPrompt = "You are 'LearnBot Pro'.\n" +
+            "1. Use (1., 2.) for headings.\n" +
+            "2. Include Mermaid diagrams using 'graph TD' for visual topics.\n" +
+            "3. Use (technical terms) in parentheses.";
 
         Map<String, Object> requestBody = Map.of(
             "contents", List.of(Map.of(
@@ -38,16 +36,17 @@ public class StudyService {
         );
 
         try {
-            System.out.println("Connecting to Gemini...");
+            // Attempt the call to the NEW Gemini 3 endpoint
             Map<String, Object> response = restTemplate.postForObject(url, requestBody, Map.class);
-            
             List candidates = (List) response.get("candidates");
             Map content = (Map) ((Map) candidates.get(0)).get("content");
             List parts = (List) content.get("parts");
             return (String) ((Map) parts.get(0)).get("text");
         } catch (Exception e) {
-            System.err.println("GEMINI ERROR: " + e.getMessage());
+            // This will now tell you if it's still a 404 or something else
+            System.err.println("API ERROR: " + e.getMessage());
             return "LearnBot is currently offline. Error: " + e.getMessage();
         }
     }
 }
+    
