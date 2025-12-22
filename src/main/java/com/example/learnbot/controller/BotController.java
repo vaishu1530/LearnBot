@@ -27,13 +27,9 @@ public class BotController {
 
     // 3. HANDLE the AI logic (the chat button)
     @PostMapping("/ask")
-    public String processQuestion(@RequestParam String question, Model model) {
-        try {
-            String response = studyService.getStudyLogic(question);
-            model.addAttribute("botResponse", response);
-        } catch (Exception e) {
-            model.addAttribute("botResponse", "LearnBot is currently offline. Error: " + e.getMessage());
-        }
-        return "ask"; // Ensure this matches your HTML file name exactly
+    public String getAnswer(@RequestParam String question, Model model) {
+        String aiResponse = studyService.getStudyLogic(question);
+        model.addAttribute("botResponse", aiResponse);
+        return "ask"; // <--- THIS MUST BE THE FILE NAME ask.html
     }
 }
