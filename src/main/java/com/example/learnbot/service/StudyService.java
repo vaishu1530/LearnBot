@@ -18,17 +18,23 @@ public class StudyService {
 
     public String getStudyLogic(String userQuestion) {
         if (apiKey == null || apiKey.isEmpty()) {
-            return "LearnBot is offline. Error: API key missing in environment variables.";
+            return "LearnBot is offline. Error: API Key is missing. Please add GEMINI_API_KEY to your Variables.";
         }
 
         String url = apiUrl + "?key=" + apiKey;
 
-        // Prompt designed for "Perplexity" style split (Text + Diagram)
-        String systemPrompt = "You are 'LearnBot Pro'.\n" +
-            "1. Give a brief academic explanation using numbered lists (1. 2.).\n" +
-            "2. End with exactly ONE diagram.\n" +
-            "3. Format the diagram as: [DIAGRAM_START] graph TD ... [DIAGRAM_END]\n" +
-            "4. DO NOT use backticks (```) or the word 'mermaid' anywhere.";
+        // CRITICAL: This prompt ensures the structure you requested
+        String systemPrompt = "You are 'LearnBot Pro', an academic tutor.\n" +
+            "Follow these rules strictly for the output:\n" +
+            "1. Start with a brief explanation using Numbered Lists (1., 2.) for main points.\n" +
+            "2. Use Bullet Points (•) under each number for detailed explanation.\n" +
+            "3. Include a relevant example for the topic.\n" +
+            "4. End the answer with a Mermaid diagram. Use this EXACT format:\n" +
+            "   [DIAGRAM_START]\n" +
+            "   graph TD\n" +
+            "   ... (your code) ...\n" +
+            "   [DIAGRAM_END]\n" +
+            "5. NO backticks (```), NO markdown code blocks, and NO text after [DIAGRAM_END].";
 
         Map<String, Object> requestBody = Map.of(
             "contents", List.of(Map.of(
@@ -43,7 +49,7 @@ public class StudyService {
             List parts = (List) content.get("parts");
             return (String) ((Map) parts.get(0)).get("text");
         } catch (Exception e) {
-            return "LearnBot is currently offline. Error: " + e.getMessage() + ". Check your database connection and API key.";
+            return "LearnBot is currently offline. Error: " + e.getMessage() + ". Check your API key and connection.";
         }
     }
 }
