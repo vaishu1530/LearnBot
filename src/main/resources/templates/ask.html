@@ -1,64 +1,43 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="[http://www.thymeleaf.org](http://www.thymeleaf.org)">
 <head>
-    <title>LearnBot | Intelligence Pro</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({ startOnLoad: false, theme: 'dark' });</script>
-    <style>
-        :root { --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); --accent: #4ade80; }
-        body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 250px; background: #090b0f; border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; transition: 0.3s; }
-        .sidebar-top { padding: 20px; }
-        .new-chat-btn { width: 100%; padding: 12px; background: var(--glass); border: 1px dashed var(--accent); color: var(--accent); border-radius: 10px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .sidebar-middle { flex: 1; overflow-y: auto; padding: 15px; }
-        .sidebar-bottom { padding: 15px; border-top: 1px solid var(--border); }
-        .nav-item { padding: 10px; font-size: 0.8rem; color: #64748b; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
-        .main-chat { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-        #chatbox { flex: 1; overflow-y: auto; padding: 40px 5%; display: flex; flex-direction: column; scroll-behavior: smooth; }
-        .msg-container { max-width: 80%; margin-bottom: 25px; padding: 18px 22px; border-radius: 15px; line-height: 1.6; }
-        .user-msg { align-self: flex-start; background: var(--glass); border: 1px solid var(--border); border-bottom-left-radius: 2px; }
-        .bot-msg { align-self: flex-end; background: rgba(74, 222, 128, 0.05); border: 1px solid rgba(74, 222, 128, 0.2); border-bottom-right-radius: 2px; }
-        .label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
-        .bullet { color: var(--accent); font-weight: bold; margin-right: 8px; display: inline; }
-        .mermaid { background: white !important; padding: 15px; border-radius: 12px; margin: 15px 0; display: block; width: 100%; }
-        .input-container { padding: 25px 5%; background: linear-gradient(transparent, #05070a 50%); }
-        .input-glass { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 10px 20px; display: flex; align-items: center; }
-        input { background: transparent; border: none; color: white; flex: 1; outline: none; font-size: 1rem; }
-        button#sendBtn { background: var(--accent); color: #05070a; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; }
-    </style>
+    <title>LearnBot Pro</title>
+    <script type="module">
+        import mermaid from '[https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs](https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs)';
+        mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
+        window.mermaid = mermaid;
+    </script>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-top"><button class="new-chat-btn" onclick="location.reload()">+ New Chat</button></div>
-        <div class="sidebar-middle"><div id="history" style="font-size: 0.8rem; color: #64748b;">Recent topics will appear here.</div></div>
-        <div class="sidebar-bottom"><div class="nav-item">⚙️ Settings</div><div class="nav-item">❓ Help & FAQ</div></div>
-    </div>
-    <div class="main-chat">
-        <div id="chatbox"><div class="msg-container bot-msg"><span class="label" style="color:#4ade80">LearnBot AI</span><div>Welcome! I'm ready to help with your studies.</div></div></div>
-        <div class="input-container"><div class="input-glass"><input type="text" id="userIn" placeholder="Ask a question..." onkeypress="if(event.key==='Enter') send()"><button id="sendBtn" onclick="send()">RUN AI</button></div></div>
-    </div>
+    <div id="response-box">
+        <div id="ai-text" style="display:none;" th:text="${botResponse}"></div>
+        
+        <div id="final-answer"></div> <div id="diagram-area"></div> </div>
+
     <script>
-        async function send() {
-            const input = document.getElementById('userIn');
-            const chat = document.getElementById('chatbox');
-            if(!input.value.trim()) return;
-            const q = input.value;
-            chat.innerHTML += `<div class="msg-container user-msg"><span class="label" style="color:#64748b">You</span><div>${q}</div></div>`;
-            input.value = '';
-            chat.scrollTop = chat.scrollHeight;
-            try {
-                const response = await fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ 'question': q }) });
-                const text = await response.text();
-                let formatted = text.replace(/\*/g, '').replace(/•\s*(.*)/g, '<div><span class="bullet">•</span>$1</div>').replace(/graph TD[\s\S]*?(?=\n\n|$|```)/g, '<div class="mermaid">$&</div>').replace(/\n/g, '<br>');
-                chat.innerHTML += `<div class="msg-container bot-msg"><span class="label" style="color:#4ade80">LearnBot AI</span><div>${formatted}</div></div>`;
-                await mermaid.run();
-                chat.scrollTop = chat.scrollHeight;
-            } catch (err) {
-                chat.innerHTML += `<div class="msg-container bot-msg" style="border-color:red"><span class="label" style="color:red">Error</span><div>Check your database connection and API key.</div></div>`;
+        document.addEventListener("DOMContentLoaded", async () => {
+            const raw = document.getElementById('ai-text').innerText;
+            const textDiv = document.getElementById('final-answer');
+            const diagDiv = document.getElementById('diagram-area');
+
+            // Split the AI response using our custom markers
+            const parts = raw.split("[DIAGRAM_START]");
+            const textPart = parts[0];
+            const diagramPart = parts[1] ? parts[1].split("[DIAGRAM_END]")[0].trim() : null;
+
+            // 1. Show Text
+            textDiv.innerHTML = textPart.replace(/\n/g, "<br>");
+
+            // 2. Render Diagram if exists
+            if (diagramPart && window.mermaid) {
+                const graphDiv = document.createElement('div');
+                graphDiv.className = 'mermaid';
+                graphDiv.innerHTML = diagramPart;
+                diagDiv.appendChild(graphDiv);
+                
+                await window.mermaid.run({ nodes: [graphDiv] });
             }
-        }
+        });
     </script>
 </body>
 </html>

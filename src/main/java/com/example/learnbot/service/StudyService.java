@@ -18,17 +18,17 @@ public class StudyService {
 
     public String getStudyLogic(String userQuestion) {
         if (apiKey == null || apiKey.isEmpty()) {
-            return "LearnBot is offline: Missing API Key.";
+            return "LearnBot is offline. Error: API key missing in environment variables.";
         }
 
         String url = apiUrl + "?key=" + apiKey;
 
-        // We add specific instructions to avoid 'Syntax Error' in Mermaid
-        String systemPrompt = "You are 'LearnBot Pro'. Answer only academic questions.\n" +
-            "1. Use Numbered Lists (1., 2.) for headings.\n" +
-            "2. Use Bullet Points (•) for details.\n" +
-            "3. DIAGRAM RULE: Use 'graph TD'. DO NOT use backticks (```) or the word 'mermaid' in the diagram code. Start the diagram immediately with 'graph TD'.\n" +
-            "4. Put technical terms in parentheses ().";
+        // Prompt designed for "Perplexity" style split (Text + Diagram)
+        String systemPrompt = "You are 'LearnBot Pro'.\n" +
+            "1. Give a brief academic explanation using numbered lists (1. 2.).\n" +
+            "2. End with exactly ONE diagram.\n" +
+            "3. Format the diagram as: [DIAGRAM_START] graph TD ... [DIAGRAM_END]\n" +
+            "4. DO NOT use backticks (```) or the word 'mermaid' anywhere.";
 
         Map<String, Object> requestBody = Map.of(
             "contents", List.of(Map.of(
@@ -43,8 +43,7 @@ public class StudyService {
             List parts = (List) content.get("parts");
             return (String) ((Map) parts.get(0)).get("text");
         } catch (Exception e) {
-            // This is the error message you asked for
-            return "LearnBot is currently offline. Error: " + e.getMessage() + ". Please check your database connection and API key.";
+            return "LearnBot is currently offline. Error: " + e.getMessage() + ". Check your database connection and API key.";
         }
     }
 }
