@@ -17,17 +17,20 @@ public class StudyService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public String getStudyLogic(String userQuestion) {
+        // 1. Validation: Prevent API calls if the key is missing
         if (apiKey == null || apiKey.isEmpty()) {
-            return "LearnBot is offline: Missing API Key.";
+            return "LearnBot is offline: Missing API Key. Please set GEMINI_API_KEY in your environment.";
         }
 
-        // Join URL and Key
+        // 2. Final Endpoint URL
         String url = apiUrl + "?key=" + apiKey;
 
-        String systemPrompt = "You are 'LearnBot Pro'.\n" +
-            "1. Use (1., 2.) for headings.\n" +
-            "2. Include Mermaid diagrams using 'graph TD' for visual topics.\n" +
-            "3. Use (technical terms) in parentheses.";
+        // 3. The "Final Exam" System Prompt
+        String systemPrompt = "You are 'LearnBot Pro'. Follow these rules strictly:\n" +
+            "1. Use Numbered Lists (1., 2.) for main steps.\n" +
+            "2. Use Bullet Points (•) for sub-details.\n" +
+            "3. If a concept is visual, you MUST draw a Mermaid diagram using 'graph TD' syntax.\n" +
+            "4. Keep technical terms in parentheses (Example).";
 
         Map<String, Object> requestBody = Map.of(
             "contents", List.of(Map.of(
@@ -36,17 +39,19 @@ public class StudyService {
         );
 
         try {
-            // Attempt the call to the NEW Gemini 3 endpoint
+            // Send request to Gemini 3 Flash
             Map<String, Object> response = restTemplate.postForObject(url, requestBody, Map.class);
+            
+            // Extract the text content safely
             List candidates = (List) response.get("candidates");
             Map content = (Map) ((Map) candidates.get(0)).get("content");
             List parts = (List) content.get("parts");
+            
             return (String) ((Map) parts.get(0)).get("text");
         } catch (Exception e) {
-            // This will now tell you if it's still a 404 or something else
-            System.err.println("API ERROR: " + e.getMessage());
-            return "LearnBot is currently offline. Error: " + e.getMessage();
+            // Print actual error to logs for debugging
+            System.err.println("API CRITICAL ERROR: " + e.getMessage());
+            return "LearnBot is currently offline. Error Detail: " + e.getMessage();
         }
     }
 }
-    
