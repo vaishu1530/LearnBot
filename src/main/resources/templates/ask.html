@@ -73,10 +73,22 @@
         .ans-text b { color: var(--matrix-green); display: block; margin-top: 20px; }
         .bullet { color: var(--matrix-green); margin-right: 10px; font-weight: bold; }
 
-        .mermaid-container { 
-            margin-top: 30px; padding: 20px; background: white; 
-            border-radius: 8px; display: flex; justify-content: center; 
-        }
+		/* Dark Professional Diagram Container */
+		.mermaid-container { 
+		    margin-top: 30px; 
+		    padding: 30px; 
+		    background: #1a1a1a; /* Dark background to match UI */
+		    border: 2px solid var(--matrix-green); 
+		    border-radius: 15px; 
+		    display: flex; 
+		    justify-content: center; 
+		    box-shadow: 0 0 20px rgba(46, 204, 113, 0.2);
+		}
+
+		/* Make Diagram Text Bigger and White */
+		.mermaid {
+		    font-size: 18px !important; /* Larger text for presentation */
+		}
 
         /* --- STICKY BOTTOM SEARCH BAR --- */
         .bottom-nav {
@@ -153,23 +165,33 @@
 		</div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const rawEl = document.getElementById('raw-data');
-            if (!rawEl) return;
+	<script>
+	    document.addEventListener("DOMContentLoaded", async () => {
+	        const rawEl = document.getElementById('raw-data');
+	        if (!rawEl) return;
 
-            const parts = rawEl.innerText.split("[DIAGRAM_START]");
-            document.getElementById('text-output').innerHTML = parts[0].trim().replace(/\n/g, '<br>');
-            
-            const diagCode = parts[1] ? parts[1].split("[DIAGRAM_END]")[0].trim() : null;
-            if (diagCode && window.mermaid) {
-                const diagDiv = document.createElement('div');
-                diagDiv.className = 'mermaid';
-                diagDiv.innerHTML = diagCode;
-                document.getElementById('graph-output').appendChild(diagDiv);
-                await window.mermaid.run({ nodes: [diagDiv] });
-            }
-        });
-    </script>
+	        const parts = rawEl.innerText.split("[DIAGRAM_START]");
+	        document.getElementById('text-output').innerHTML = parts[0].trim().replace(/\n/g, '<br>');
+	        
+	        const diagCode = parts[1] ? parts[1].split("[DIAGRAM_END]")[0].trim() : null;
+	        
+	        if (diagCode && window.mermaid) {
+	            // Re-initialize for Dark Theme
+	            window.mermaid.initialize({ 
+	                startOnLoad: false, 
+	                theme: 'dark', // Use dark theme for attractiveness
+	                fontFamily: 'Segoe UI',
+	                fontSize: 20 // Bigger fonts
+	            });
+
+	            const diagDiv = document.createElement('div');
+	            diagDiv.className = 'mermaid';
+	            diagDiv.innerHTML = diagCode;
+	            document.getElementById('graph-output').appendChild(diagDiv);
+	            
+	            await window.mermaid.run({ nodes: [diagDiv] });
+	        }
+	    });
+	</script>
 </body>
 </html>
