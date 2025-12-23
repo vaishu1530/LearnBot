@@ -36,29 +36,29 @@ public class BotController {
     }
     @PostMapping("/ask")
     public String getAnswer(@RequestParam String question, HttpSession session, Model model) {
-        // 1. Try to get the user, but DON'T redirect if null
+        // 1. Identify the logged-in student
         User user = (User) session.getAttribute("loggedInUser");
         
-        // 2. Fallback ID so the sidebar doesn't crash if session is lost
-        Long userId = (user != null) ? user.getId() : 1L; 
-
-        // 3. Get the AI Response (The most important part for your demo!)
+        // 2. Get the AI Response
         String aiResponse = studyService.getStudyLogic(question);
 
-        // 4. Save history only if user exists
+        // 3. FEATURE: SAVE CHAT HISTORY
         if (user != null) {
             ChatHistory chat = new ChatHistory();
             chat.setQuestion(question);
-            chat.setUser(user); 
-            chatRepository.save(chat);
+            chat.setResponse(aiResponse);
+            chat.setUser(user); // Connects history to this student's ID
+            chatRepository.save(chat); // Saves to the chat_history table
         }
 
-        // 5. Send data to the page
+        // 4. FEATURE: PROVIDE HISTORY TO THE UI
+        Long userId = (user != null) ? user.getId() : 1L;
+        List<ChatHistory> history = chatRepository.findByUserIdOrderByIdDesc(userId);
+        
         model.addAttribute("question", question);
         model.addAttribute("botResponse", aiResponse);
-        model.addAttribute("history", chatRepository.findByUserIdOrderByIdDesc(userId));
+        model.addAttribute("history", history); // Sends history list to Thymeleaf
         
-        // 6. STAY ON THE PAGE - DO NOT USE REDIRECT HERE
         return "ask"; 
     }
 }

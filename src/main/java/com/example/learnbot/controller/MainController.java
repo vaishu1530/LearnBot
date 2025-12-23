@@ -43,10 +43,10 @@ public class MainController {
             model.addAttribute("error", "Email already exists!");
             return "register";
         }
-        userService.save(user);
-        return "login";
+        // This saves the student to the 'users' table you saw in MySQL
+        userService.save(user); 
+        return "redirect:/login";
     }
-
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
