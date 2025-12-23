@@ -30,100 +30,74 @@
             display: flex; 
             flex-direction: column; 
         }
-        .logo { font-size: 20px; font-weight: bold; color: var(--matrix-green); margin-bottom: 40px; }
-        .recent-history { flex-grow: 1; }
+        .logo { font-size: 20px; font-weight: bold; color: var(--matrix-green); margin-bottom: 40px; cursor: pointer; }
+        .recent-history { flex-grow: 1; overflow-y: auto; }
         .history-title { font-size: 11px; color: #444; text-transform: uppercase; margin-bottom: 15px; }
         .history-item { 
-            padding: 10px; 
-            margin: 5px 0; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-size: 14px; 
-            color: #888; 
-            transition: 0.2s;
+            padding: 10px; margin: 5px 0; border-radius: 5px; cursor: pointer; 
+            font-size: 13px; color: #888; transition: 0.2s;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .history-item:hover { background: #1a1a1a; color: var(--matrix-green); }
 
-        /* --- MAIN DASHBOARD --- */
+        /* --- MAIN LAYOUT --- */
         .main-content { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+        }
+
+        /* Scrollable Chat Area */
+        .chat-container { 
             flex-grow: 1; 
             display: flex; 
             flex-direction: column; 
             padding: 20px 40px; 
             overflow-y: auto; 
+            align-items: center; 
         }
 
-        .chat-container { flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
-
-        /* --- USER QUESTION BOX --- */
         .user-query {
-            align-self: flex-start;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            padding: 15px 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            max-width: 80%;
+            align-self: flex-start; background: #1a1a1a; border: 1px solid #333;
+            padding: 15px 25px; border-radius: 12px; margin-bottom: 25px; max-width: 80%;
         }
 
-        /* --- AI RESPONSE CARD --- */
         .ans-card { 
-            align-self: flex-end;
-            width: 100%; 
-            max-width: 850px; 
-            background: #0f1a14; 
-            padding: 30px; 
-            border-radius: 15px; 
-            border: 1px solid #145233;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            align-self: flex-end; width: 100%; max-width: 850px; 
+            background: #0f1a14; padding: 30px; border-radius: 15px; 
+            border: 1px solid #145233; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
         .ans-text { line-height: 1.8; color: #ccc; font-size: 15px; }
         .ans-text b { color: var(--matrix-green); display: block; margin-top: 20px; }
         .bullet { color: var(--matrix-green); margin-right: 10px; font-weight: bold; }
 
-        /* --- DIAGRAM --- */
         .mermaid-container { 
-            margin-top: 30px; 
-            padding: 20px; 
-            background: white; 
-            border-radius: 8px; 
-            display: flex; 
-            justify-content: center; 
+            margin-top: 30px; padding: 20px; background: white; 
+            border-radius: 8px; display: flex; justify-content: center; 
         }
 
-        /* --- BOTTOM SEARCH BAR --- */
+        /* --- STICKY BOTTOM SEARCH BAR --- */
         .bottom-nav {
-            padding: 20px 0;
+            padding: 20px 40px;
+            background: var(--bg-dark);
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: center;
         }
         .search-box {
-            width: 100%;
-            max-width: 800px;
-            display: flex;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 15px;
-            padding: 10px 20px;
+            width: 100%; max-width: 800px; display: flex;
+            background: #1a1a1a; border: 1px solid #333;
+            border-radius: 15px; padding: 5px 15px; align-items: center;
         }
         .search-box input {
-            flex-grow: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            padding: 10px;
-            outline: none;
-            font-size: 16px;
+            flex-grow: 1; background: transparent; border: none;
+            color: white; padding: 12px; outline: none; font-size: 16px;
         }
         .run-btn {
-            background: var(--matrix-green);
-            color: black;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
+            background: var(--matrix-green); color: black; border: none;
+            padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer;
         }
     </style>
 
@@ -136,68 +110,64 @@
 <body>
 
     <div class="sidebar">
-        <div class="logo">+ New Chat</div>
+        <div class="logo" onclick="window.location.href='/ask'">+ New Chat</div>
         <div class="recent-history">
-            <div class="history-title">Recent History</div>
-            <div class="history-item">geyser explain</div>
-            <div class="history-item">TCP IP diagram</div>
-            <div class="history-item">OSI MODEL explanation</div>
+            <div class="history-title">Your History</div>
+            <div th:each="item : ${history}" class="history-item">
+                <i class="fas fa-comment-alt" style="font-size: 10px; margin-right: 8px;"></i>
+                <span th:text="${item.question}">Recent Query</span>
+            </div>
         </div>
-        <div style="color: #444; font-size: 14px; margin-top: auto; cursor: pointer;">
-            <i class="fas fa-cog"></i> Settings<br><br>
-            <i class="fas fa-question-circle"></i> Help & FAQ
+		
+        <div style="color: #444; font-size: 14px; margin-top: auto;">
+            <a th:href="@{/logout}" style="color: #ff4d4d; text-decoration: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </div>
 
     <div class="main-content">
         <div class="chat-container">
             <div class="user-query" th:if="${question != null}">
-                <span style="color: #555; font-size: 12px; display: block; margin-bottom: 5px;">YOU</span>
-                <span th:text="${question}">Question text here</span>
+                <span style="color: #555; font-size: 11px; display: block; margin-bottom: 5px;">USER_QUERY</span>
+                <span th:text="${question}">Question text</span>
             </div>
 
             <div class="ans-card" th:if="${botResponse != null}">
-                <span style="color: var(--matrix-green); font-size: 12px; font-weight: bold; display: block; margin-bottom: 10px;">LEARNBOT AI</span>
+                <span style="color: var(--matrix-green); font-size: 11px; font-weight: bold; display: block; margin-bottom: 10px;">LEARNBOT_OUTPUT</span>
                 <div id="raw-data" style="display:none;" th:text="${botResponse}"></div>
                 <div id="text-output" class="ans-text"></div>
                 <div id="graph-output" class="mermaid-container"></div>
             </div>
+
+            <div th:if="${botResponse == null}" style="margin-top: 15vh; text-align: center; color: #222;">
+                <i class="fas fa-terminal" style="font-size: 50px; margin-bottom: 20px;"></i>
+                <p>READY. AWAITING INPUT.</p>
+            </div>
         </div>
 
-        <div class="bottom-nav">
-            <form action="/ask" method="post" class="search-box">
-                <input type="text" name="question" placeholder="Ask your question..." required>
-                <button type="submit" class="run-btn">RUN AI</button>
-            </form>
-        </div>
+		<div class="bottom-nav">
+		    <form th:action="@{/ask}" method="post" class="search-box">
+				
+		        <input type="text" name="question" placeholder="Ask your question..." required autocomplete="off">
+		        <button type="submit" class="run-btn">RUN AI</button>
+		    </form>
+		</div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            const raw = document.getElementById('raw-data')?.innerText;
-            const textOutput = document.getElementById('text-output');
-            const graphOutput = document.getElementById('graph-output');
+            const rawEl = document.getElementById('raw-data');
+            if (!rawEl) return;
 
-            if (raw) {
-                const parts = raw.split("[DIAGRAM_START]");
-                const mainText = parts[0].trim();
-                const diagramCode = parts[1] ? parts[1].split("[DIAGRAM_END]")[0].trim() : null;
-
-                // Formatting
-                textOutput.innerHTML = mainText
-                    .replace(/\n/g, '<br>')
-                    .replace(/(\d+\.)/g, '<b>$1</b>') 
-                    .replace(/(•)/g, '<span class="bullet">$1</span>');
-
-                if (diagramCode && window.mermaid) {
-                    const diagDiv = document.createElement('div');
-                    diagDiv.className = 'mermaid';
-                    diagDiv.innerHTML = diagramCode;
-                    graphOutput.appendChild(diagDiv);
-                    await window.mermaid.run({ nodes: [diagDiv] });
-                } else {
-                    graphOutput.style.display = 'none';
-                }
+            const parts = rawEl.innerText.split("[DIAGRAM_START]");
+            document.getElementById('text-output').innerHTML = parts[0].trim().replace(/\n/g, '<br>');
+            
+            const diagCode = parts[1] ? parts[1].split("[DIAGRAM_END]")[0].trim() : null;
+            if (diagCode && window.mermaid) {
+                const diagDiv = document.createElement('div');
+                diagDiv.className = 'mermaid';
+                diagDiv.innerHTML = diagCode;
+                document.getElementById('graph-output').appendChild(diagDiv);
+                await window.mermaid.run({ nodes: [diagDiv] });
             }
         });
     </script>
