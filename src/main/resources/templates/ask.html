@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>LearnBot | Intelligence Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
@@ -29,8 +30,11 @@
             padding: 20px; 
             display: flex; 
             flex-direction: column; 
+            transition: transform 0.3s ease;
+            z-index: 2000;
         }
-        .logo { font-size: 20px; font-weight: bold; color: var(--matrix-green); margin-bottom: 40px; cursor: pointer; }
+        
+        .logo { font-size: 20px; font-weight: bold; color: var(--matrix-green); margin-bottom: 40px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .recent-history { flex-grow: 1; overflow-y: auto; }
         .history-title { font-size: 11px; color: #444; text-transform: uppercase; margin-bottom: 15px; }
         .history-item { 
@@ -46,9 +50,19 @@
             display: flex; 
             flex-direction: column; 
             height: 100vh;
+            position: relative;
         }
 
-        /* Scrollable Chat Area */
+        /* Mobile Header */
+        .mobile-header {
+            display: none;
+            padding: 15px;
+            background: var(--panel-dark);
+            border-bottom: 1px solid var(--border-color);
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .chat-container { 
             flex-grow: 1; 
             display: flex; 
@@ -71,26 +85,13 @@
 
         .ans-text { line-height: 1.8; color: #ccc; font-size: 15px; }
         .ans-text b { color: var(--matrix-green); display: block; margin-top: 20px; }
-        .bullet { color: var(--matrix-green); margin-right: 10px; font-weight: bold; }
 
-		/* Dark Professional Diagram Container */
 		.mermaid-container { 
-		    margin-top: 30px; 
-		    padding: 30px; 
-		    background: #1a1a1a; /* Dark background to match UI */
-		    border: 2px solid var(--matrix-green); 
-		    border-radius: 15px; 
-		    display: flex; 
-		    justify-content: center; 
-		    box-shadow: 0 0 20px rgba(46, 204, 113, 0.2);
+		    margin-top: 30px; padding: 20px; background: #000; 
+		    border: 1px solid var(--matrix-green); border-radius: 15px; 
+		    display: flex; justify-content: center; overflow-x: auto;
 		}
 
-		/* Make Diagram Text Bigger and White */
-		.mermaid {
-		    font-size: 18px !important; /* Larger text for presentation */
-		}
-
-        /* --- STICKY BOTTOM SEARCH BAR --- */
         .bottom-nav {
             padding: 20px 40px;
             background: var(--bg-dark);
@@ -111,18 +112,47 @@
             background: var(--matrix-green); color: black; border: none;
             padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer;
         }
+
+        /* --- MOBILE RESPONSIVE CSS --- */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            
+            .sidebar {
+                position: fixed;
+                left: 0; top: 0; bottom: 0;
+                transform: translateX(-100%); /* Hide off-screen */
+                width: 280px;
+            }
+            .sidebar.active { transform: translateX(0); }
+
+            .mobile-header { display: flex; }
+            
+            .chat-container { padding: 15px; }
+            .user-query, .ans-card { max-width: 95%; padding: 15px; }
+            
+            .bottom-nav {
+                padding: 10px;
+                position: sticky;
+                bottom: 0;
+            }
+            .search-box input { padding: 8px; font-size: 14px; }
+            .run-btn { padding: 8px 15px; }
+        }
     </style>
 
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-        mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
         window.mermaid = mermaid;
     </script>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="logo" onclick="window.location.href='/ask'">+ New Chat</div>
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <span onclick="window.location.href='/ask'">+ New Chat</span>
+            <i class="fas fa-times" id="close-menu" style="display:none; cursor:pointer;" onclick="toggleMenu()"></i>
+        </div>
         <div class="recent-history">
             <div class="history-title">Your History</div>
             <div th:each="item : ${history}" class="history-item">
@@ -130,13 +160,17 @@
                 <span th:text="${item.question}">Recent Query</span>
             </div>
         </div>
-		
-        <div style="color: #444; font-size: 14px; margin-top: auto;">
+        <div style="color: #444; font-size: 14px; margin-top: auto; padding-top: 20px;">
             <a th:href="@{/logout}" style="color: #ff4d4d; text-decoration: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </div>
 
     <div class="main-content">
+        <div class="mobile-header">
+            <i class="fas fa-bars" style="font-size: 20px; color: var(--matrix-green); cursor: pointer;" onclick="toggleMenu()"></i>
+            <span style="color: var(--matrix-green); font-weight: bold;">LEARNBOT</span>
+            <div style="width: 20px;"></div> </div>
+
         <div class="chat-container">
             <div class="user-query" th:if="${question != null}">
                 <span style="color: #555; font-size: 11px; display: block; margin-bottom: 5px;">USER_QUERY</span>
@@ -156,42 +190,47 @@
             </div>
         </div>
 
-		<div class="bottom-nav">
-		    <form th:action="@{/ask}" method="post" class="search-box">
-				
-		        <input type="text" name="question" placeholder="Ask your question..." required autocomplete="off">
-		        <button type="submit" class="run-btn">RUN AI</button>
-		    </form>
-		</div>
+        <div class="bottom-nav">
+            <form th:action="@{/ask}" method="post" class="search-box">
+                <input type="text" name="question" placeholder="Ask your question..." required autocomplete="off">
+                <button type="submit" class="run-btn">RUN AI</button>
+            </form>
+        </div>
     </div>
 
-	<script>
-	    document.addEventListener("DOMContentLoaded", async () => {
-	        const rawEl = document.getElementById('raw-data');
-	        if (!rawEl) return;
+    <script>
+        // TOGGLE SIDEBAR FOR MOBILE
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+            const closeBtn = document.getElementById('close-menu');
+            closeBtn.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+        }
 
-	        const parts = rawEl.innerText.split("[DIAGRAM_START]");
-	        document.getElementById('text-output').innerHTML = parts[0].trim().replace(/\n/g, '<br>');
-	        
-	        const diagCode = parts[1] ? parts[1].split("[DIAGRAM_END]")[0].trim() : null;
-	        
-	        if (diagCode && window.mermaid) {
-	            // Re-initialize for Dark Theme
-	            window.mermaid.initialize({ 
-	                startOnLoad: false, 
-	                theme: 'dark', // Use dark theme for attractiveness
-	                fontFamily: 'Segoe UI',
-	                fontSize: 20 // Bigger fonts
-	            });
+        document.addEventListener("DOMContentLoaded", async () => {
+            const rawEl = document.getElementById('raw-data');
+            if (!rawEl) return;
 
-	            const diagDiv = document.createElement('div');
-	            diagDiv.className = 'mermaid';
-	            diagDiv.innerHTML = diagCode;
-	            document.getElementById('graph-output').appendChild(diagDiv);
-	            
-	            await window.mermaid.run({ nodes: [diagDiv] });
-	        }
-	    });
-	</script>
+            const parts = rawEl.innerText.split("[DIAGRAM_START]");
+            document.getElementById('text-output').innerHTML = parts[0].trim().replace(/\n/g, '<br>');
+            
+            const diagCode = parts[1] ? parts[1].split("[DIAGRAM_END]")[0].trim() : null;
+            
+            if (diagCode && window.mermaid) {
+                window.mermaid.initialize({ 
+                    startOnLoad: false, 
+                    theme: 'dark',
+                    themeVariables: { fontSize: '20px' }
+                });
+
+                const diagDiv = document.createElement('div');
+                diagDiv.className = 'mermaid';
+                diagDiv.innerHTML = diagCode;
+                document.getElementById('graph-output').appendChild(diagDiv);
+                
+                await window.mermaid.run({ nodes: [diagDiv] });
+            }
+        });
+    </script>
 </body>
 </html>
